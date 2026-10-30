@@ -1,0 +1,20 @@
+---
+description: Vue, TypeScript, and frontend engineering standards
+globs: "**/*.vue, **/*.ts, **/*.css, **/*.scss"
+alwaysApply: false
+---
+
+# Frontend Standards
+
+- Use Vue 3 Composition API with `<script setup lang="ts">`.
+- Use strict TypeScript, typed props/emits, and avoid `any`.
+- Follow existing project architecture and conventions.
+- Prefer modern native CSS over unnecessary JavaScript or UI dependencies.
+- Use CSS Grid, Flexbox, custom properties, clamp(), and container queries where appropriate.
+- Build responsive layouts intentionally, not as an afterthought.
+- Use semantic HTML and accessible interactive elements.
+- Respect keyboard navigation, focus states, contrast, and reduced-motion preferences.
+- Extract reusable components based on meaningful repetition.
+- Avoid unnecessary abstractions, oversized components, and excessive dependencies.
+- Preserve established design tokens and visual patterns.
+- For new UI work or visual redesigns, load the frontend-design skill before implementation.
