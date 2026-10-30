@@ -6,7 +6,7 @@ The app is Vue 3 and TypeScript. One Node process serves the built UI and a Hono
 
 ## Status
 
-Phase 1: the roadmap page renders a Bryntum Gantt from static tasks. Bars are manually scheduled. Save and the AI proxy are still later.
+Phase 2: the roadmap page loads and saves through the API. Bars stay manually scheduled. The AI chat appears only when `OPENAI_API_KEY` is set. Teams, the portfolio, and Docker are still later.
 
 ## Bryntum
 
@@ -18,6 +18,6 @@ Editors on a roadmap get Bryntum's AI chat. The model token is `OPENAI_API_KEY` 
 
 ## Run
 
-`npm run dev` starts the chart. Tasks are inline and do not save yet. Phase 2 adds save and the AI proxy. Phase 4 adds Docker.
+`npm run dev` starts the Vite page. `npm run server` starts the API on port 8080 and reads `.env` when that file exists. Phase 4 adds Docker.
 
 When Docker exists, the service listens on port 8080 and stores the database at `/data/app.db` on a named volume. Sign-in stays on the reverse proxy in front of the container. Pass `OPENAI_API_KEY` in at runtime. An empty value leaves the chat off.

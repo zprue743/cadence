@@ -25,6 +25,7 @@ Open `C:\Users\pruet\Dev\cadence-plan.md` only when the task changes scope, sche
 
 ## Commands
 
-- `npm run dev` starts the Vite page. The chart uses inline tasks. Save is not implemented yet.
+- `npm run dev` starts the Vite page.
+- `npm run server` starts the API on port 8080. It reads `.env` when that file exists.
 - `npm run build` typechecks and builds the client.
 - `npm run preview` serves the production build.

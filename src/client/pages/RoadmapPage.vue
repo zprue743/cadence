@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import { BryntumGantt, BryntumGanttProjectModel } from '@bryntum/gantt-vue-3'
-import type { Gantt, Model, ProjectModel, TaskModel } from '@bryntum/gantt'
+import { OpenAIPlugin, type Gantt, type Model, type ProjectModel, type TaskModel } from '@bryntum/gantt'
 import '@bryntum/gantt/gantt.css'
 import '@bryntum/gantt/stockholm-light.css'
 import '../gantt/gantt.css'
 import { CadenceTaskModel } from '../gantt/taskModel'
 import {
   columns,
-  dependencies,
   statuses,
   subGridConfigs,
-  tasks,
   taskRenderer,
   zoomPresets,
   type ZoomId,
 } from '../gantt/ganttConfig'
+import type { AiStatus, RoadmapSummary } from '../../shared/types'
 
 const projectRef = ref<InstanceType<typeof BryntumGanttProjectModel> | null>(null)
 const ganttRef = ref<InstanceType<typeof BryntumGantt> | null>(null)
@@ -27,14 +26,54 @@ const status = ref('proposed')
 const owner = ref('')
 const outcome = ref('')
 const note = ref('')
+const roadmapId = ref<number | null>(null)
+const loadError = ref('')
+const aiEnabled = ref(false)
 let chartBound = false
 
-onMounted(() => {
-  project.value = projectRef.value?.instance.value ?? null
+const loadUrl = computed(() => (roadmapId.value == null ? '' : `/api/roadmaps/${roadmapId.value}/load`))
+const syncUrl = computed(() => (roadmapId.value == null ? '' : `/api/roadmaps/${roadmapId.value}/sync`))
+const aiFeature = computed(() => {
+  if (!aiEnabled.value) return false
+  return {
+    promptUrl: '/api/ai/prompt',
+    apiPlugin: OpenAIPlugin,
+    tools: { criticalPath: null as never },
+  }
+})
+
+onMounted(async () => {
+  try {
+    const [listResponse, aiResponse] = await Promise.all([fetch('/api/roadmaps'), fetch('/api/ai')])
+    if (!listResponse.ok) throw new Error('Roadmap list failed')
+    const list = (await listResponse.json()) as RoadmapSummary[]
+    const first = list[0]
+    if (!first) throw new Error('No roadmap')
+    if (aiResponse.ok) {
+      const ai = (await aiResponse.json()) as AiStatus
+      aiEnabled.value = ai.enabled
+    }
+    roadmapId.value = first.id
+  } catch {
+    loadError.value = 'The roadmap API is not running.'
+  }
+})
+
+watch(projectRef, (component) => {
+  if (!component) {
+    project.value = null
+    return
+  }
+  void nextTick(() => {
+    project.value = component.instance.value ?? null
+  })
 })
 
 watch(ganttRef, (component) => {
-  if (!component) return
+  if (!component) {
+    chartBound = false
+    return
+  }
   void nextTick(() => {
     const gantt = component.instance.value
     if (!gantt || chartBound) return
@@ -130,11 +169,15 @@ function onNote(event: Event) {
       </div>
     </header>
     <div class="workspace">
+      <p v-if="loadError" class="load-error" role="alert">{{ loadError }}</p>
       <BryntumGanttProjectModel
+        v-if="roadmapId !== null"
         ref="projectRef"
         class="project-host"
-        :tasks="tasks"
-        :dependencies="dependencies"
+        :load-url="loadUrl"
+        :sync-url="syncUrl"
+        :auto-load="true"
+        :auto-sync="true"
         :task-model-class="CadenceTaskModel"
         :add-constraint-on-date-set="false"
         :auto-schedule-manual-tasks-on-second-pass="false"
@@ -151,6 +194,7 @@ function onNote(event: Event) {
           :task-renderer="taskRenderer"
           :task-edit-feature="false"
           :critical-paths-feature="false"
+          :ai-feature="aiFeature"
           :listeners="{
             selectionChange: onSelectionChange,
             cellClick: onCellClick,

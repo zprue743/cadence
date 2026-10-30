@@ -2,7 +2,7 @@
 
 Read `AGENTS.md` first. Use this file to open one path. Skip directories the task does not name.
 
-Phase 0 created this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.env.example`. Phase 1 added `index.html`, `package.json`, `vite.config.ts`, `tsconfig.json`, and the `src/client` files listed below. Later-phase paths in the tables do not exist yet. Do not search the tree for them.
+Phase 0 created this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.env.example`. Phase 1 added the client shell. Phase 2 added the API, SQLite schema, and shared types. Phase 3 and phase 4 paths in the tables do not exist yet. Do not search the tree for them.
 
 ## Root
 
@@ -33,7 +33,7 @@ Vue 3 UI. Start here for screens and the chart.
 | `src/client/main.ts` | 1 | App bootstrap |
 | `src/client/App.vue` | 1 | Shell |
 | `src/client/pages/RoadmapPage.vue` | 1 | The editable Gantt page |
-| `src/client/gantt/ganttConfig.ts` | 1 | Columns, zoom, static tasks, manual scheduling. `loadUrl` / `syncUrl` and the AI feature come later |
+| `src/client/gantt/ganttConfig.ts` | 1 | Columns, zoom, and manual scheduling |
 | `src/client/gantt/gantt.css` | 1 | Page layout and status bar colors |
 | `src/client/gantt/taskModel.ts` | 1 | `status`, `owner`, `outcome` on the task model |
 | `src/client/pages/RoadmapList.vue` | 3 | Teams and their roadmaps |
