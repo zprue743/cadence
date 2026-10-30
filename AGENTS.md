@@ -25,4 +25,6 @@ Open `C:\Users\pruet\Dev\cadence-plan.md` only when the task changes scope, sche
 
 ## Commands
 
-None. Phase 0 is docs only. Do not invent scripts.
+- `npm run dev` starts the Vite page. The chart uses inline tasks. Save is not implemented yet.
+- `npm run build` typechecks and builds the client.
+- `npm run preview` serves the production build.

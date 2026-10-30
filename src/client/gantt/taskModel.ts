@@ -1,9 +1,14 @@
-export const taskFields = ['status', 'owner', 'outcome'] as const
+import { TaskModel } from '@bryntum/gantt'
 
-export type TaskField = (typeof taskFields)[number]
+export class CadenceTaskModel extends TaskModel {
+  static $name = 'CadenceTaskModel'
 
-export type CadenceTaskFields = {
-  status: string
-  owner: string
-  outcome: string
+  static get fields() {
+    return [
+      { name: 'status', defaultValue: 'proposed' },
+      { name: 'owner', defaultValue: '' },
+      { name: 'outcome', defaultValue: '' },
+      { name: 'manuallyScheduled', defaultValue: true },
+    ]
+  }
 }

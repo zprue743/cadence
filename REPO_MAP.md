@@ -33,7 +33,8 @@ Vue 3 UI. Start here for screens and the chart.
 | `src/client/main.ts` | 1 | App bootstrap |
 | `src/client/App.vue` | 1 | Shell |
 | `src/client/pages/RoadmapPage.vue` | 1 | The editable Gantt page |
-| `src/client/gantt/ganttConfig.ts` | 1 | Columns, zoom, `loadUrl` / `syncUrl`, manual scheduling. AI feature is added in phase 2 for editors |
+| `src/client/gantt/ganttConfig.ts` | 1 | Columns, zoom, static tasks, manual scheduling. `loadUrl` / `syncUrl` and the AI feature come later |
+| `src/client/gantt/gantt.css` | 1 | Page layout and status bar colors |
 | `src/client/gantt/taskModel.ts` | 1 | `status`, `owner`, `outcome` on the task model |
 | `src/client/pages/RoadmapList.vue` | 3 | Teams and their roadmaps |
 | `src/client/pages/PortfolioPage.vue` | 3 | Read-only top-level initiatives |

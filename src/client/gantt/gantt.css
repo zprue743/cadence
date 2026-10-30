@@ -1,0 +1,198 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  color: #1c2430;
+  background: #f3f0e8;
+}
+
+.roadmap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #fffdf8;
+  border-bottom: 1px solid #d9d3c5;
+}
+
+.toolbar h1 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.zoom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.zoom button {
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #c5beae;
+  border-radius: 999px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.zoom button[aria-pressed='true'] {
+  background: #1d4e89;
+  border-color: #1d4e89;
+  color: #fff;
+}
+
+.zoom button:focus-visible,
+.panel :focus-visible {
+  outline: 2px solid #1d4e89;
+  outline-offset: 2px;
+}
+
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.project-host {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.gantt-host {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gantt-host .gantt {
+  height: 100%;
+}
+
+.panel {
+  flex: 0 0 20rem;
+  box-sizing: border-box;
+  padding: 1rem 1rem 1.5rem;
+  overflow: auto;
+  background: #fffdf8;
+  border-left: 1px solid #d9d3c5;
+}
+
+.panel h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.panel p {
+  margin: 0;
+  color: #5c6570;
+}
+
+.panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.panel input,
+.panel select,
+.panel textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #c5beae;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-weight: 400;
+}
+
+.panel textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.b-gantt .b-gantt-task.cadence-status-proposed {
+  background-color: #5c6b7a;
+  background-image: none;
+}
+
+.b-gantt .b-gantt-task.cadence-status-planned {
+  background-color: #1d4e89;
+  background-image: none;
+}
+
+.b-gantt .b-gantt-task.cadence-status-in-progress {
+  background-color: #0f6e6e;
+  background-image: none;
+}
+
+.b-gantt .b-gantt-task.cadence-status-done {
+  background-color: #1f7a4d;
+  background-image: none;
+}
+
+.b-gantt .b-gantt-task.cadence-status-slipped {
+  background-color: #9a3b3b;
+  background-image: none;
+}
+
+.b-gantt .b-gantt-task.cadence-status-proposed .b-gantt-task-content,
+.b-gantt .b-gantt-task.cadence-status-planned .b-gantt-task-content,
+.b-gantt .b-gantt-task.cadence-status-in-progress .b-gantt-task-content,
+.b-gantt .b-gantt-task.cadence-status-done .b-gantt-task-content,
+.b-gantt .b-gantt-task.cadence-status-slipped .b-gantt-task-content {
+  color: #fff;
+}
+
+@media (max-width: 800px) {
+  .workspace {
+    flex-direction: column;
+  }
+
+  .panel {
+    flex: 0 0 auto;
+    max-height: 40vh;
+    border-left: 0;
+    border-top: 1px solid #d9d3c5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zoom button {
+    transition: none;
+  }
+}
