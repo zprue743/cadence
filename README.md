@@ -6,7 +6,7 @@ The app is Vue 3 and TypeScript. One Node process serves the built UI and a Hono
 
 ## Status
 
-Phase 0: repo docs only. There is no application code yet.
+Phase 1 scaffold: `index.html`, `package.json`, `vite.config.ts`, `tsconfig.json`, and the `src/client` shell are in place. Vue, Vite, TypeScript 5.9, and the Bryntum 7.3.8 trial are installed. The chart is not rendered yet.
 
 ## Bryntum
 
@@ -18,6 +18,6 @@ Editors on a roadmap get Bryntum's AI chat. The model token is `OPENAI_API_KEY` 
 
 ## Run
 
-Not yet. Phase 1 renders a chart. Phase 2 adds save and the AI proxy. Phase 4 adds Docker.
+The placeholder page starts with `npm run dev`. The chart is not rendered yet. Phase 2 adds save and the AI proxy. Phase 4 adds Docker.
 
 When Docker exists, the service listens on port 8080 and stores the database at `/data/app.db` on a named volume. Sign-in stays on the reverse proxy in front of the container. Pass `OPENAI_API_KEY` in at runtime. An empty value leaves the chat off.

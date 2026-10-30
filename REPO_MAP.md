@@ -2,7 +2,7 @@
 
 Read `AGENTS.md` first. Use this file to open one path. Skip directories the task does not name.
 
-Phase 0 created only this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.env.example`. Every other path below is where a later phase puts code. Those paths do not exist yet. Do not search the tree for them.
+Phase 0 created this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.env.example`. Phase 1 added `index.html`, `package.json`, `vite.config.ts`, `tsconfig.json`, and the `src/client` files listed below. Later-phase paths in the tables do not exist yet. Do not search the tree for them.
 
 ## Root
 
@@ -13,6 +13,7 @@ Phase 0 created only this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.en
 | `REPO_MAP.md` | phase 0 | Where files go |
 | `.gitignore` | phase 0 | Ignored artifacts |
 | `.env.example` | phase 0 | Variable names. Values stay empty |
+| `index.html` | phase 1 | Vite entry. Loads `src/client/main.ts` |
 | `package.json` | phase 1 | Dependencies, including the Bryntum alias |
 | `vite.config.ts` | phase 1 | Vue build and `/api` proxy |
 | `tsconfig.json` | phase 1 | TypeScript |
@@ -28,6 +29,7 @@ Vue 3 UI. Start here for screens and the chart.
 
 | Path | Phase | Open it for |
 | --- | --- | --- |
+| `src/client/env.d.ts` | 1 | `*.vue` module shim |
 | `src/client/main.ts` | 1 | App bootstrap |
 | `src/client/App.vue` | 1 | Shell |
 | `src/client/pages/RoadmapPage.vue` | 1 | The editable Gantt page |
