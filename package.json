@@ -15,7 +15,8 @@
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.14",
-    "vue": "^3.5.44"
+    "vue": "^3.5.44",
+    "write-excel-file": "^3.0.8"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",

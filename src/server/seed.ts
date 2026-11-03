@@ -1,4 +1,5 @@
-import { dependencies, roadmaps, tasks } from './schema'
+import { eq } from 'drizzle-orm'
+import { dependencies, roadmaps, tasks, teams } from './schema'
 import type { AppDatabase } from './db'
 
 const sampleTasks = [
@@ -13,6 +14,7 @@ const sampleTasks = [
     status: 'planned',
     owner: 'Avery Chen',
     outcome: 'A roadmap the teams can share',
+    successCriteria: 'Every team can open one shared roadmap',
     note: '',
   },
   {
@@ -26,6 +28,7 @@ const sampleTasks = [
     status: 'in progress',
     owner: 'Sam Ortiz',
     outcome: 'Sign-in for every product',
+    successCriteria: 'A person can sign in to every product with one account',
     note: '',
   },
   {
@@ -39,6 +42,7 @@ const sampleTasks = [
     status: 'proposed',
     owner: 'Sam Ortiz',
     outcome: 'Open beta',
+    successCriteria: 'Design partners can use the beta without a support call',
     note: '',
   },
   {
@@ -52,6 +56,7 @@ const sampleTasks = [
     status: 'slipped',
     owner: 'Riley Ng',
     outcome: 'Invoices go out on time',
+    successCriteria: 'Invoices leave within one business day of month end',
     note: 'Slipped after the vendor delay',
   },
 ]
@@ -60,9 +65,15 @@ export function seedIfEmpty(db: AppDatabase) {
   const existing = db.select({ id: roadmaps.id }).from(roadmaps).limit(1).all()
   if (existing.length > 0) return
 
+  const team =
+    db.select().from(teams).where(eq(teams.slug, 'platform')).get() ??
+    db.insert(teams).values({ name: 'Platform', slug: 'platform' }).returning().get()
+  if (!team) return
+
   const roadmap = db
     .insert(roadmaps)
     .values({
+      teamId: team.id,
       name: 'Platform',
       description: '',
       revision: 0,
@@ -80,6 +91,8 @@ export function seedIfEmpty(db: AppDatabase) {
         roadmapId: roadmap.id,
         percentDone: 0,
         manuallyScheduled: true,
+        successCriteria: task.successCriteria,
+        gitlabUrl: '',
       })),
     )
     .run()

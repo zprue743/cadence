@@ -2,7 +2,7 @@
 
 Read `AGENTS.md` first. Use this file to open one path. Skip directories the task does not name.
 
-Phase 0 created this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.env.example`. Phase 1 added the client shell. Phase 2 added the API, SQLite schema, and shared types. Phase 3 and phase 4 paths in the tables do not exist yet. Do not search the tree for them.
+Phase 0 created this file, `README.md`, `AGENTS.md`, `.gitignore`, and `.env.example`. Phase 1 added the client shell. Phase 2 added the API, SQLite schema, and shared types. The review milestone added teams, the portfolio, snapshots, date health, and the GitLab signal. Phase 4 Docker files are not in the repo yet.
 
 ## Root
 
@@ -35,7 +35,10 @@ Vue 3 UI. Start here for screens and the chart.
 | `src/client/pages/RoadmapPage.vue` | 1 | The editable Gantt page |
 | `src/client/gantt/ganttConfig.ts` | 1 | Columns, zoom, and manual scheduling |
 | `src/client/gantt/gantt.css` | 1 | Page layout and status bar colors |
-| `src/client/gantt/taskModel.ts` | 1 | `status`, `owner`, `outcome` on the task model |
+| `src/client/gantt/taskModel.ts` | 1 | `status`, `owner`, `outcome`, `successCriteria` on the task model |
+| `src/client/gantt/schedule.ts` | review | Date health, tooltip, and the parent-shade correction |
+| `src/client/gantt/exportReview.ts` | review | Excel review workbook |
+| `src/client/useColorMode.ts` | review | Light and dark theme |
 | `src/client/pages/RoadmapList.vue` | 3 | Teams and their roadmaps |
 | `src/client/pages/PortfolioPage.vue` | 3 | Read-only top-level initiatives |
 
@@ -52,12 +55,20 @@ Hono process. It will serve `dist/` and the API on one port.
 | `src/server/routes/roadmaps.ts` | 2 | Load, sync, phantom ids, revision |
 | `src/server/routes/ai.ts` | 2 | `OPENAI_API_KEY`, prompt proxy, enabled flag |
 | `src/server/routes/portfolio.ts` | 3 | Read-only cross-team load |
+| `src/server/routes/gitlab.ts` | review | Read-only GitLab work item signal |
+| `src/server/identity.ts` | review | Trusted email for every roadmap, snapshot, and AI route |
+| `src/server/access.ts` | review | Editor check for a team or roadmap |
+| `src/server/snapshots.ts` | review | Named immutable snapshots and the change list |
+| `src/server/aiProxy.ts` | review | OpenAI-compatible prompt body |
+| `src/server/gitlab.ts` | review | Work Items query |
 
 ## `src/shared`
 
 | Path | Phase | Open it for |
 | --- | --- | --- |
 | `src/shared/types.ts` | 2 | Types shared by client and server |
+| `src/shared/dateHealth.ts` | review | Local calendar date health |
+| `src/shared/filterTree.ts` | review | Keep ancestor rows when a filter matches a child |
 
 ## Do not open
 

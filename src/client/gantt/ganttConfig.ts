@@ -1,4 +1,5 @@
 import type { DomClassList, TaskModel, ViewPresetConfig } from '@bryntum/gantt'
+import { healthForTask } from './schedule'
 
 export const statuses = ['proposed', 'planned', 'in progress', 'done', 'slipped'] as const
 
@@ -11,6 +12,19 @@ export function statusClass(status: string): string {
 }
 
 const statusClasses = statuses.map(statusClass)
+const healthClasses = ['completed', 'overdue', 'on-track', 'no-target'].map((name) => `cadence-health-${name}`)
+
+function assignClasses(renderData: { cls: DomClassList | string }, active: string[]) {
+  const allowed = new Set([...statusClasses, ...healthClasses])
+  if (typeof renderData.cls === 'string') {
+    const kept = renderData.cls.split(/\s+/).filter((name) => name && !allowed.has(name))
+    renderData.cls = [...kept, ...active].join(' ')
+    return
+  }
+  const flags: Record<string, boolean> = {}
+  for (const name of allowed) flags[name] = active.includes(name)
+  renderData.cls.assign(flags)
+}
 
 export function taskRenderer({
   taskRecord,
@@ -20,17 +34,8 @@ export function taskRenderer({
   renderData: { cls: DomClassList | string }
 }): string {
   const status = String(taskRecord.get('status') ?? 'proposed')
-  const active = statusClass(status)
-
-  if (typeof renderData.cls === 'string') {
-    const kept = renderData.cls.split(/\s+/).filter((name) => name && !statusClasses.includes(name))
-    renderData.cls = [...kept, active].join(' ')
-  } else {
-    const flags: Record<string, boolean> = {}
-    for (const name of statusClasses) flags[name] = name === active
-    renderData.cls.assign(flags)
-  }
-
+  const health = healthForTask(taskRecord).toLowerCase().replace(/\s+/g, '-')
+  assignClasses(renderData, [statusClass(status), `cadence-health-${health}`])
   return ''
 }
 
@@ -55,11 +60,46 @@ export const zoomPresets: Record<ZoomId, string | ViewPresetConfig> = {
 }
 
 export const columns = [
-  { type: 'name' as const, field: 'name', text: 'Name', width: 160 },
+  { type: 'name' as const, field: 'name', text: 'Name', width: 180 },
+  { field: 'outcome', text: 'Outcome', width: 180 },
+  { field: 'successCriteria', text: 'Success criteria', width: 200 },
+  { field: 'owner', text: 'Owner', width: 120 },
   { field: 'status', text: 'Status', width: 110 },
-  { field: 'owner', text: 'Owner', width: 130 },
+  {
+    field: 'dateHealth',
+    text: 'Date health',
+    width: 120,
+    editor: false,
+    htmlEncode: false,
+    renderer({ record }: { record: TaskModel }) {
+      const health = healthForTask(record)
+      const slug = health.toLowerCase().replace(/\s+/g, '-')
+      return `<span class="health health-${slug}">${health}</span>`
+    },
+  },
   { type: 'startdate' as const, field: 'startDate', text: 'Start', width: 110 },
   { type: 'enddate' as const, field: 'endDate', text: 'End', width: 110 },
+]
+
+export const portfolioColumns = [
+  { field: 'teamName', text: 'Team', width: 140, editor: false },
+  { type: 'name' as const, field: 'name', text: 'Name', width: 200 },
+  { field: 'status', text: 'Status', width: 110, editor: false },
+  {
+    field: 'dateHealth',
+    text: 'Date health',
+    width: 120,
+    editor: false,
+    htmlEncode: false,
+    renderer({ record }: { record: TaskModel }) {
+      const health = healthForTask(record)
+      const slug = health.toLowerCase().replace(/\s+/g, '-')
+      return `<span class="health health-${slug}">${health}</span>`
+    },
+  },
+  { field: 'owner', text: 'Owner', width: 130, editor: false },
+  { type: 'startdate' as const, field: 'startDate', text: 'Start', width: 110, editor: false },
+  { type: 'enddate' as const, field: 'endDate', text: 'End', width: 110, editor: false },
 ]
 
 export const subGridConfigs = {

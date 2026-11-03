@@ -1,8 +1,12 @@
 import type Database from 'better-sqlite3'
 import { and, eq } from 'drizzle-orm'
 import { Hono } from 'hono'
+import type { Context } from 'hono'
+import { editorTeamIds, isEditorOfRoadmap, isEditorOfTeam } from '../access'
 import type { AppDatabase } from '../db'
-import { dependencies, roadmaps, tasks } from '../schema'
+import { emailFromHeaders } from '../identity'
+import { registerSnapshotRoutes } from '../snapshots'
+import { dependencies, roadmaps, tasks, teams } from '../schema'
 import type { DependencyRow, LoadResponse, RoadmapSummary, TaskRow } from '../../shared/types'
 
 type SyncRecord = Record<string, unknown>
@@ -51,6 +55,8 @@ const taskColumns: Record<string, string> = {
   status: 'status',
   owner: 'owner',
   outcome: 'outcome',
+  successCriteria: 'success_criteria',
+  gitlabUrl: 'gitlab_url',
   parentId: 'parent_id',
   parentIndex: 'parent_index',
 }
@@ -129,7 +135,15 @@ function bindTaskValue(key: string, value: unknown, phantoms: Map<string, number
     if (resolved != null && !taskIds.has(resolved)) throw new SyncError('Parent task is not on this roadmap')
     return resolved
   }
-  if (key === 'name' || key === 'note' || key === 'status' || key === 'owner' || key === 'outcome') {
+  if (
+    key === 'name' ||
+    key === 'note' ||
+    key === 'status' ||
+    key === 'owner' ||
+    key === 'outcome' ||
+    key === 'successCriteria' ||
+    key === 'gitlabUrl'
+  ) {
     return asString(value)
   }
   if (key === 'startDate' || key === 'endDate') return value == null ? null : asString(value)
@@ -193,8 +207,8 @@ function applySync(db: AppDatabase, sqlite: Database.Database, roadmapId: number
   const insertTask = sqlite.prepare(
     `insert into tasks (
       roadmap_id, parent_id, parent_index, name, start_date, end_date, duration,
-      percent_done, note, manually_scheduled, status, owner, outcome
-    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      percent_done, note, manually_scheduled, status, owner, outcome, success_criteria, gitlab_url
+    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   )
 
   for (const record of records(body.tasks?.added)) {
@@ -222,6 +236,8 @@ function applySync(db: AppDatabase, sqlite: Database.Database, roadmapId: number
       present(record, 'status') ? asString(record.status, 'proposed') : 'proposed',
       present(record, 'owner') ? asString(record.owner) : '',
       present(record, 'outcome') ? asString(record.outcome) : '',
+      present(record, 'successCriteria') ? asString(record.successCriteria) : '',
+      present(record, 'gitlabUrl') ? asString(record.gitlabUrl) : '',
     )
     const id = Number(inserted.lastInsertRowid)
     if (pendingParents.length > 0 && pendingParents[pendingParents.length - 1]?.id === -1) {
@@ -331,33 +347,63 @@ function roadmapIdParam(value: string): number | null {
   return Number.isInteger(id) ? id : null
 }
 
+function requestEmail(c: Context): string | null {
+  return emailFromHeaders({
+    get(name) {
+      return c.req.header(name)
+    },
+  })
+}
+
 export function roadmapRoutes(db: AppDatabase, sqlite: Database.Database) {
   const app = new Hono()
 
   app.get('/', (c) => {
+    const email = requestEmail(c)
+    if (!email) return c.json({ message: 'Sign-in required' }, 401)
+    const editing = editorTeamIds(db, email)
     const rows = db
       .select({
         id: roadmaps.id,
+        teamId: roadmaps.teamId,
+        teamName: teams.name,
         name: roadmaps.name,
         description: roadmaps.description,
         revision: roadmaps.revision,
         updatedAt: roadmaps.updatedAt,
       })
       .from(roadmaps)
-      .orderBy(roadmaps.id)
+      .innerJoin(teams, eq(roadmaps.teamId, teams.id))
+      .orderBy(teams.name, roadmaps.name)
       .all()
-    const list: RoadmapSummary[] = rows
+    const list: RoadmapSummary[] = rows.map((row) => {
+      const span = sqlite
+        .prepare('select min(start_date) as startDate, max(end_date) as endDate from tasks where roadmap_id = ?')
+        .get(row.id) as { startDate: string | null; endDate: string | null }
+      return {
+        ...row,
+        startDate: span.startDate,
+        endDate: span.endDate,
+        canEdit: editing.has(row.teamId),
+      }
+    })
     return c.json(list)
   })
 
   app.post('/', async (c) => {
+    const email = requestEmail(c)
+    if (!email) return c.json({ message: 'Sign-in required' }, 401)
     const incoming: unknown = await c.req.json().catch(() => null)
     const body = incoming && typeof incoming === 'object' && !Array.isArray(incoming) ? (incoming as SyncRecord) : {}
+    const teamId = asNumber(body.teamId)
+    if (teamId == null || !Number.isInteger(teamId)) return c.json({ message: 'Choose a team' }, 400)
+    if (!isEditorOfTeam(db, email, teamId)) return c.json({ message: 'Only an editor can change this roadmap' }, 403)
     const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim() : 'Untitled roadmap'
     const description = typeof body.description === 'string' ? body.description : ''
     const row = db
       .insert(roadmaps)
       .values({
+        teamId,
         name,
         description,
         revision: 0,
@@ -365,6 +411,7 @@ export function roadmapRoutes(db: AppDatabase, sqlite: Database.Database) {
       })
       .returning({
         id: roadmaps.id,
+        teamId: roadmaps.teamId,
         name: roadmaps.name,
         description: roadmaps.description,
         revision: roadmaps.revision,
@@ -375,6 +422,8 @@ export function roadmapRoutes(db: AppDatabase, sqlite: Database.Database) {
   })
 
   app.get('/:id/load', (c) => {
+    const email = requestEmail(c)
+    if (!email) return c.json({ message: 'Sign-in required' }, 401)
     const id = roadmapIdParam(c.req.param('id'))
     if (id == null) return c.json({ message: 'Not found' }, 404)
     const roadmap = db.select().from(roadmaps).where(eq(roadmaps.id, id)).get()
@@ -396,6 +445,8 @@ export function roadmapRoutes(db: AppDatabase, sqlite: Database.Database) {
       status: row.status,
       owner: row.owner,
       outcome: row.outcome,
+      successCriteria: row.successCriteria,
+      gitlabUrl: row.gitlabUrl,
       expanded: parents.has(row.id),
     }))
     const dependencyRecords = db.select().from(dependencies).where(eq(dependencies.roadmapId, id)).orderBy(dependencies.id).all()
@@ -416,14 +467,17 @@ export function roadmapRoutes(db: AppDatabase, sqlite: Database.Database) {
   })
 
   app.post('/:id/sync', async (c) => {
+    const email = requestEmail(c)
+    if (!email) return c.json({ message: 'Sign-in required' }, 401)
     const id = roadmapIdParam(c.req.param('id'))
     if (id == null) return c.json({ message: 'Not found' }, 404)
+    if (!isEditorOfRoadmap(db, email, id)) return c.json({ message: 'Only an editor can change this roadmap' }, 403)
     const incoming: unknown = await c.req.json().catch(() => null)
     const body: SyncBody = incoming && typeof incoming === 'object' && !Array.isArray(incoming) ? (incoming as SyncBody) : {}
     try {
       const outcome = sqlite.transaction(() => applySync(db, sqlite, id, body)).immediate()
       if (outcome.kind === 'missing') return c.json({ message: 'Not found' }, 404)
-      if (outcome.kind === 'conflict') return c.json({ success: false })
+      if (outcome.kind === 'conflict') return c.json({ success: false, conflict: true })
       return c.json(outcome.body)
     } catch (error) {
       if (error instanceof SyncError) return c.json({ success: false })
@@ -432,9 +486,43 @@ export function roadmapRoutes(db: AppDatabase, sqlite: Database.Database) {
     }
   })
 
-  app.delete('/:id', (c) => {
+  registerSnapshotRoutes(app, db, sqlite)
+
+  app.get('/:id', (c) => {
+    const email = requestEmail(c)
+    if (!email) return c.json({ message: 'Sign-in required' }, 401)
     const id = roadmapIdParam(c.req.param('id'))
     if (id == null) return c.json({ message: 'Not found' }, 404)
+    const row = db
+      .select({
+        id: roadmaps.id,
+        teamId: roadmaps.teamId,
+        teamName: teams.name,
+        name: roadmaps.name,
+        description: roadmaps.description,
+        revision: roadmaps.revision,
+        updatedAt: roadmaps.updatedAt,
+      })
+      .from(roadmaps)
+      .innerJoin(teams, eq(roadmaps.teamId, teams.id))
+      .where(eq(roadmaps.id, id))
+      .get()
+    if (!row) return c.json({ message: 'Not found' }, 404)
+    const detail: RoadmapSummary = {
+      ...row,
+      startDate: null,
+      endDate: null,
+      canEdit: isEditorOfRoadmap(db, email, id),
+    }
+    return c.json(detail)
+  })
+
+  app.delete('/:id', (c) => {
+    const email = requestEmail(c)
+    if (!email) return c.json({ message: 'Sign-in required' }, 401)
+    const id = roadmapIdParam(c.req.param('id'))
+    if (id == null) return c.json({ message: 'Not found' }, 404)
+    if (!isEditorOfRoadmap(db, email, id)) return c.json({ message: 'Only an editor can change this roadmap' }, 403)
     const roadmap = db.select({ id: roadmaps.id }).from(roadmaps).where(eq(roadmaps.id, id)).get()
     if (!roadmap) return c.json({ message: 'Not found' }, 404)
     sqlite.transaction(() => {

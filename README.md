@@ -6,7 +6,7 @@ The app is Vue 3 and TypeScript. One Node process serves the built UI and a Hono
 
 ## Status
 
-Phase 2: the roadmap page loads and saves through the API. Bars stay manually scheduled. The AI chat appears only when `OPENAI_API_KEY` is set. Teams, the portfolio, and Docker are still later.
+The roadmap page loads and saves through the API. Bars stay manually scheduled. Editors get the AI chat when `OPENAI_API_KEY` is set. `AI_BASE_URL` points that proxy at OpenAI or an Open WebUI `/api` base. Teams, a read-only portfolio, commitment snapshots, and a GitLab work-item signal are in the app. Docker is still later.
 
 ## Bryntum
 
