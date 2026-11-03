@@ -38,7 +38,16 @@ const aiFeature = computed(() => {
   return {
     promptUrl: '/api/ai/prompt',
     apiPlugin: OpenAIPlugin,
-    tools: { criticalPath: null as never },
+    model: 'gpt-4.1',
+    tools: {
+      criticalPath: {
+        description: 'Critical path is not available.',
+        available: false,
+        fn() {},
+      },
+    },
+    undo: false,
+    redo: false,
   }
 })
 
