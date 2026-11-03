@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "skills": {
+    "bryntum": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum/SKILL.md",
+      "computedHash": "201314d054b90923cfde78e796d28b0b3ab248add6e42df761930ff946c2afc9"
+    },
+    "bryntum-crud": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-crud/SKILL.md",
+      "computedHash": "c262cc7ee998afab0e1d129bb3f7897acd9c1ea786b85797cd83b0a9cc7fd660"
+    },
+    "bryntum-drag-and-drop": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-drag-and-drop/SKILL.md",
+      "computedHash": "ef7b73528537d90e5814c3b0d850a56cee50bfa39a7c5a76e5e7ee153bfd129c"
+    },
+    "bryntum-editor": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-editor/SKILL.md",
+      "computedHash": "4016b8b66ecb9371a3b0d79d73fb219c779a2e911d88920a6b9e185011bee968"
+    },
+    "bryntum-features": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-features/SKILL.md",
+      "computedHash": "d8677657d7f366f74ca0442e6a638a313bd9079d642ca3dc9ecfd487f62a079b"
+    },
+    "bryntum-from-extjs": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-from-extjs/SKILL.md",
+      "computedHash": "d1d0047340b0218fb3d7e389ce1915e2e28de29075828c1fcec1fd348952ed85"
+    },
+    "bryntum-migrate": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-migrate/SKILL.md",
+      "computedHash": "e1ac0a773e420e1c0e95fe7df2b122d15a003ef0ca15463a680edc5bccbef191"
+    },
+    "bryntum-styling": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-styling/SKILL.md",
+      "computedHash": "5f477070eebca7510de1ed2dcc8ff8a79b18c76f4352467c1d54ffc158b5c2cf"
+    },
+    "bryntum-theming": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-theming/SKILL.md",
+      "computedHash": "0dd21a80db4f00fd62cb177784e206a4f918957c35147a34790d214adf8afa4b"
+    },
+    "bryntum-vanilla": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-vanilla/SKILL.md",
+      "computedHash": "0d7a3ebded10341f83d5d85cab799f04e9e6a6531ed6de46323524068fd1a44e"
+    },
+    "bryntum-vue": {
+      "source": "bryntum/skills",
+      "sourceType": "github",
+      "skillPath": "bryntum-vue/SKILL.md",
+      "computedHash": "480c8669b447c4f927061355e91c482c6309a03c67761b67e6c4c6af1ff85f9e"
+    }
+  }
+}
