@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { BryntumGantt, BryntumGanttProjectModel } from '@bryntum/gantt-vue-3'
 import { OpenAIPlugin, type Gantt, type Model, type ProjectModel, type TaskModel } from '@bryntum/gantt'
+import '@bryntum/gantt/fontawesome/css/fontawesome.css'
+import '@bryntum/gantt/fontawesome/css/solid.css'
 import '@bryntum/gantt/gantt.css'
-import '@bryntum/gantt/stockholm-light.css'
+import material3Dark from '@bryntum/gantt/material3-dark.css?url'
+import material3Light from '@bryntum/gantt/material3-light.css?url'
 import '../gantt/gantt.css'
 import { CadenceTaskModel } from '../gantt/taskModel'
 import {
@@ -21,6 +24,7 @@ const ganttRef = ref<InstanceType<typeof BryntumGantt> | null>(null)
 const project = shallowRef<ProjectModel | null>(null)
 const selected = shallowRef<TaskModel | null>(null)
 const activeZoom = ref<ZoomId>('month')
+const colorMode = ref<ColorMode>(readColorMode())
 const taskName = ref('')
 const status = ref('proposed')
 const owner = ref('')
@@ -30,6 +34,50 @@ const roadmapId = ref<number | null>(null)
 const loadError = ref('')
 const aiEnabled = ref(false)
 let chartBound = false
+
+type ColorMode = 'light' | 'dark'
+
+const COLOR_MODE_KEY = 'cadence-color-mode'
+const themeUrls: Record<ColorMode, string> = {
+  light: material3Light,
+  dark: material3Dark,
+}
+
+function readColorMode(): ColorMode {
+  try {
+    const stored = localStorage.getItem(COLOR_MODE_KEY)
+    if (stored === 'light' || stored === 'dark') return stored
+  } catch {
+    // Preference stays with the system setting when storage is blocked.
+  }
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
+
+function applyColorMode(mode: ColorMode) {
+  const existing = document.getElementById('cadence-theme')
+  const link = existing instanceof HTMLLinkElement ? existing : document.createElement('link')
+  link.id = 'cadence-theme'
+  link.rel = 'stylesheet'
+  link.href = themeUrls[mode]
+  if (!link.parentNode) document.head.appendChild(link)
+  document.documentElement.style.colorScheme = mode
+}
+
+function setColorMode(mode: ColorMode) {
+  colorMode.value = mode
+  try {
+    localStorage.setItem(COLOR_MODE_KEY, mode)
+  } catch {
+    // The choice still applies for this visit.
+  }
+}
+
+watch(colorMode, applyColorMode, { immediate: true })
+
+onUnmounted(() => {
+  document.getElementById('cadence-theme')?.remove()
+  document.documentElement.style.colorScheme = ''
+})
 
 const loadUrl = computed(() => (roadmapId.value == null ? '' : `/api/roadmaps/${roadmapId.value}/load`))
 const syncUrl = computed(() => (roadmapId.value == null ? '' : `/api/roadmaps/${roadmapId.value}/sync`))
@@ -170,11 +218,17 @@ function onNote(event: Event) {
   <main class="roadmap">
     <header class="toolbar">
       <h1>Cadence</h1>
-      <div class="zoom" role="group" aria-label="Timeline zoom">
-        <button type="button" :aria-pressed="activeZoom === 'month'" @click="setZoom('month')">Month</button>
-        <button type="button" :aria-pressed="activeZoom === 'quarter'" @click="setZoom('quarter')">Quarter</button>
-        <button type="button" :aria-pressed="activeZoom === 'year'" @click="setZoom('year')">Year</button>
-        <button type="button" @click="scrollToToday">Today</button>
+      <div class="toolbar-actions">
+        <div class="segmented" role="group" aria-label="Color mode">
+          <button type="button" :aria-pressed="colorMode === 'light'" @click="setColorMode('light')">Light</button>
+          <button type="button" :aria-pressed="colorMode === 'dark'" @click="setColorMode('dark')">Dark</button>
+        </div>
+        <div class="segmented" role="group" aria-label="Timeline zoom">
+          <button type="button" :aria-pressed="activeZoom === 'month'" @click="setZoom('month')">Month</button>
+          <button type="button" :aria-pressed="activeZoom === 'quarter'" @click="setZoom('quarter')">Quarter</button>
+          <button type="button" :aria-pressed="activeZoom === 'year'" @click="setZoom('year')">Year</button>
+          <button type="button" @click="scrollToToday">Today</button>
+        </div>
       </div>
     </header>
     <div class="workspace">
