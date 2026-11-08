@@ -52,15 +52,18 @@ function scrollToToday() {
   <main class="roadmap">
     <header class="toolbar">
       <div class="brand">
-        <a href="#/">Cadence</a>
-        <h1>Portfolio</h1>
+        <a href="#/" class="mark">Cadence</a>
+        <span class="eyebrow">Portfolio</span>
       </div>
       <div class="toolbar-actions">
         <div class="segmented" role="group" aria-label="Color mode">
           <button type="button" :aria-pressed="colorMode === 'light'" @click="setColorMode('light')">Light</button>
           <button type="button" :aria-pressed="colorMode === 'dark'" @click="setColorMode('dark')">Dark</button>
         </div>
-        <button type="button" @click="scrollToToday">Today</button>
+        <div class="segmented" role="group" aria-label="Timeline">
+          <button type="button" @click="scrollToToday">Today</button>
+        </div>
+        <a class="nav-btn" href="#/">Teams</a>
       </div>
     </header>
     <p class="hint">Top-level commitments across teams. This view does not save.</p>

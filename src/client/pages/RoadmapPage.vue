@@ -91,10 +91,8 @@ const aiFeature = computed(() => {
     redo: false,
   }
 })
-const tbar = [
-  { type: 'button' as const, text: 'Export', onClick: () => void onExport() },
-  { type: 'button' as const, text: 'Print', onClick: () => onPrint() },
-]
+/* Export/Print live in app chrome as ghost text; tbar stays for undo/redo. */
+const tbar: { type: string; text?: string; onClick?: () => void; rendition?: string }[] = []
 const tooltipFeature = { template: ({ taskRecord }: { taskRecord: TaskModel }) => tooltipHtml(taskRecord) }
 const filterLabel = computed(() => {
   if (reviewFilter.value === 'attention') return 'Needs attention'
@@ -516,8 +514,8 @@ const changeText: Record<ChangeRow['kind'], string> = {
   <main class="roadmap">
     <header class="toolbar">
       <div class="brand">
-        <a href="#/">Cadence</a>
-        <h1>{{ roadmapName }}</h1>
+        <a href="#/" class="mark">Cadence</a>
+        <span class="eyebrow">{{ roadmapName }}</span>
         <p v-if="viewingSnapshot" class="snapshot-flag">Viewing {{ viewingSnapshot }}</p>
       </div>
       <div class="toolbar-actions">
@@ -536,29 +534,42 @@ const changeText: Record<ChangeRow['kind'], string> = {
           <button type="button" :aria-pressed="activeZoom === 'year'" @click="setZoom('year')">Year</button>
           <button type="button" @click="scrollToToday">Today</button>
         </div>
-        <a class="text-link" href="#/portfolio">Portfolio</a>
+        <a class="nav-btn" href="#/portfolio">Portfolio</a>
       </div>
     </header>
     <div class="review-strip">
-      <div class="segmented" role="group" aria-label="Review filters">
-        <button type="button" :aria-pressed="reviewFilter === 'attention'" @click="setFilter('attention')">Needs attention</button>
-        <button type="button" :aria-pressed="reviewFilter === 'in progress'" @click="setFilter('in progress')">In progress</button>
-        <button type="button" :aria-pressed="reviewFilter === 'planned'" @click="setFilter('planned')">Planned</button>
+      <div class="filters" role="group" aria-label="Review filters">
+        <button type="button" class="filter filter--attn" :aria-pressed="reviewFilter === 'attention'" @click="setFilter('attention')">
+          <span class="tick" aria-hidden="true"></span>
+          Needs attention
+        </button>
+        <button type="button" class="filter filter--prog" :aria-pressed="reviewFilter === 'in progress'" @click="setFilter('in progress')">
+          <span class="tick" aria-hidden="true"></span>
+          In progress
+        </button>
+        <button type="button" class="filter filter--plan" :aria-pressed="reviewFilter === 'planned'" @click="setFilter('planned')">
+          <span class="tick" aria-hidden="true"></span>
+          Planned
+        </button>
       </div>
       <label class="find">
         Find
-        <input :value="findText" type="search" aria-describedby="find-note" @input="onFind" />
+        <input :value="findText" type="search" placeholder="Match rows" aria-describedby="find-note" @input="onFind" />
       </label>
       <p id="find-note" class="find-note">Find highlights matches. Filters hide rows.</p>
       <p v-if="reviewFilter" class="filter-banner">
         Showing {{ matchCount }} of {{ totalCount }}
         <button type="button" @click="reviewFilter = null; applyFilter()">Clear</button>
       </p>
+      <p v-if="showHint" class="hint">
+        Bar = committed window. Drag edges to replan.
+        <button type="button" @click="dismissHint">Dismiss</button>
+      </p>
+      <div class="review-actions">
+        <button type="button" class="ghost" @click="onExport">Export</button>
+        <button type="button" class="ghost" @click="onPrint">Print</button>
+      </div>
     </div>
-    <p v-if="showHint" class="hint">
-      The bar is the committed window. The shade is the children's dates. Milestone diamonds stay visible when an initiative is collapsed.
-      <button type="button" @click="dismissHint">Dismiss</button>
-    </p>
     <p v-if="conflict" class="conflict" role="alert">
       The roadmap changed. This undo was not applied.
       <button type="button" @click="reloadChart">Reload</button>
@@ -657,7 +668,7 @@ const changeText: Record<ChangeRow['kind'], string> = {
               Name
               <input v-model="snapshotName" type="text" placeholder="Q3 2026 commit" />
             </label>
-            <button type="submit" :disabled="saveState === 'saving' || saveState === 'failed'">Capture commitment</button>
+            <button type="submit" class="primary" :disabled="saveState === 'saving' || saveState === 'failed'">Capture commitment</button>
           </form>
           <label>
             Compare with

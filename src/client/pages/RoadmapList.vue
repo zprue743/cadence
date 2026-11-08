@@ -58,13 +58,16 @@ function range(roadmap: RoadmapSummary): string {
 <template>
   <main class="list-page">
     <header class="toolbar">
-      <h1>Cadence</h1>
+      <div class="brand">
+        <span class="mark">Cadence</span>
+        <span class="eyebrow">Teams</span>
+      </div>
       <div class="toolbar-actions">
-        <a class="text-link" href="#/portfolio">Portfolio</a>
         <div class="segmented" role="group" aria-label="Color mode">
           <button type="button" :aria-pressed="colorMode === 'light'" @click="setColorMode('light')">Light</button>
           <button type="button" :aria-pressed="colorMode === 'dark'" @click="setColorMode('dark')">Dark</button>
         </div>
+        <a class="nav-btn" href="#/portfolio">Portfolio</a>
       </div>
     </header>
     <p v-if="error" class="load-error" role="alert">{{ error }}</p>
@@ -82,7 +85,7 @@ function range(roadmap: RoadmapSummary): string {
           New roadmap
           <input v-model="draft[team.id]" type="text" />
         </label>
-        <button type="submit">Create</button>
+        <button type="submit" class="primary">Create</button>
       </form>
     </section>
   </main>
