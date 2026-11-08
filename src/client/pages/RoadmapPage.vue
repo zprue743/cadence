@@ -52,6 +52,7 @@ const signal = ref<GitlabSignal | null>(null)
 const signalError = ref('')
 const signalLoading = ref(false)
 const viewingSnapshot = ref('')
+const taskPanelOpen = ref(true)
 let chartBound = false
 let undoArmed = false
 let compareToken = 0
@@ -602,8 +603,13 @@ const changeText: Record<ChangeRow['kind'], string> = {
           :listeners="{ selectionChange: onSelectionChange, cellClick: onCellClick, taskClick: onTaskClick }"
         />
       </div>
-      <aside class="panel" aria-label="Task details">
-        <h2>{{ selected ? taskName : 'Task' }}</h2>
+      <aside v-if="taskPanelOpen" id="task-details" class="panel" aria-label="Task details">
+        <div class="panel-heading">
+          <h2>{{ selected ? taskName : 'Task' }}</h2>
+          <button type="button" class="panel-toggle" :aria-expanded="taskPanelOpen" aria-controls="task-details" @click="taskPanelOpen = false">
+            Collapse
+          </button>
+        </div>
         <p v-if="!selected">Select a task.</p>
         <form v-else @submit.prevent>
           <label>
@@ -677,6 +683,16 @@ const changeText: Record<ChangeRow['kind'], string> = {
           </ul>
         </section>
       </aside>
+      <button
+        v-else
+        type="button"
+        class="panel-toggle panel-toggle--collapsed"
+        :aria-expanded="taskPanelOpen"
+        aria-controls="task-details"
+        @click="taskPanelOpen = true"
+      >
+        Show task details
+      </button>
     </div>
   </main>
 </template>

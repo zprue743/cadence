@@ -321,6 +321,37 @@ body {
   border-left: 1px solid var(--b-border-7, #e6e6e6);
 }
 
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panel-toggle {
+  flex: none;
+  min-height: 2rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--b-border-5, #c5c5c5);
+  border-radius: var(--b-widget-border-radius, 0.35em);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.panel-toggle--collapsed {
+  align-self: stretch;
+  width: 2.75rem;
+  padding: 0.75rem 0.25rem;
+  border: 0;
+  border-left: 1px solid var(--b-border-7, #e6e6e6);
+  border-radius: 0;
+  background: var(--b-neutral-98, #fafafa);
+  writing-mode: vertical-rl;
+}
+
 .panel h2 {
   margin: 0 0 0.25rem;
   font-size: 1rem;
@@ -358,6 +389,11 @@ body {
   color: var(--b-widget-color, inherit);
   font: inherit;
   font-weight: 400;
+}
+
+.panel-toggle:focus-visible {
+  outline: 2px solid var(--b-primary, #1e88e5);
+  outline-offset: -3px;
 }
 
 .panel textarea {
@@ -408,6 +444,15 @@ body {
     max-height: 40vh;
     border-left: 0;
     border-top: 1px solid var(--b-border-7, #e6e6e6);
+  }
+
+  .panel-toggle--collapsed {
+    align-self: auto;
+    width: auto;
+    min-height: 2.75rem;
+    border-left: 0;
+    border-top: 1px solid var(--b-border-7, #e6e6e6);
+    writing-mode: horizontal-tb;
   }
 }
 
